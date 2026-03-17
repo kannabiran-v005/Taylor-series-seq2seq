@@ -25,8 +25,8 @@ The goal of this work is to model **symbolic Taylor series expansion as a sequen
   * Trigonometric functions
   * Exponential functions
 * Taylor expansion computed up to **4th order**
-* Generated 31,259 sample from 33,021 attempts
-* A traditional method was implemented for vertification purpose.
+* Generated 31,259 samples from 33,021 attempts
+* A traditional method was implemented for vertification purposes.
 
 The following diagram illustrates the data generation and representation pipeline:
 ![Reprsentation](assests/data.png)
