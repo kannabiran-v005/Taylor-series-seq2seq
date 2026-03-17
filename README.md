@@ -27,6 +27,7 @@ The goal of this work is to model **symbolic Taylor series expansion as a sequen
 * Taylor expansion computed up to **4th order**
 * Generated 31259 sample from 33021 attempts
 * I had traditional method for the vertification purpose.
+
 ![Reprsentation](assests/data.png)
 
 
@@ -34,12 +35,7 @@ The goal of this work is to model **symbolic Taylor series expansion as a sequen
 
 A **custom regex-based tokenizer** was implemented to handle symbolic expressions.
 
-### Features:
-
-* Preserves **multi-character operators** (e.g., `**`)
-* Maintains **numeric coefficients as atomic tokens**
-* Avoids incorrect splitting (common in NLP tokenizers)
-
+![Output](assests/tokenizer.png)
 ---
 
 ## Model Architectures
