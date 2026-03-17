@@ -37,6 +37,7 @@ The following diagram illustrates the data generation and representation pipelin
 A **custom regex-based tokenizer** was implemented to handle symbolic expressions.
 
 The tokenizer processes symbolic expressions into structured token sequences:
+
 ![Output](assests/tokenizer.png)
 ---
 
