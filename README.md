@@ -25,9 +25,10 @@ The goal of this work is to model **symbolic Taylor series expansion as a sequen
   * Trigonometric functions
   * Exponential functions
 * Taylor expansion computed up to **4th order**
-* Generated 31259 sample from 33021 attempts
-* I had traditional method for the vertification purpose.
+* Generated 31,259 sample from 33,021 attempts
+* A traditional method was implemented for vertification purpose.
 
+The following diagram illustrates the data generation and representation pipeline:
 ![Reprsentation](assests/data.png)
 
 
@@ -35,6 +36,7 @@ The goal of this work is to model **symbolic Taylor series expansion as a sequen
 
 A **custom regex-based tokenizer** was implemented to handle symbolic expressions.
 
+The tokenizer processes symbolic expressions into structured token sequences:
 ![Output](assests/tokenizer.png)
 ---
 
@@ -45,13 +47,13 @@ A **custom regex-based tokenizer** was implemented to handle symbolic expression
 * Encoder–Decoder architecture
 * Hidden size: 256
 * Embedding size: 128
+* Vocabulary size: 1582
 * Learns sequential symbolic dependencies
 
 ### 🔹 Transformer Seq2Seq
 
-* 4 Encoder + 4 Decoder layers
-* 8 attention heads
-* Embedding size: 128
+* 4 Encoder + 4 Decoder layers with 512 dimensional feed-forward network.
+* 8 attention heads and embedding size of 128.
 * Captures **global symbolic relationships using self-attention**
 
 ---
@@ -74,6 +76,8 @@ A **custom regex-based tokenizer** was implemented to handle symbolic expression
 ### LSTM Performance
 
 * Validation Accuracy: **93.08%**
+* Training Accuracy: 94.57%
+* Validation Loss: 0.2523
 
 ![LSTM Training Curve](results/lstm_training_curves.png)
 
@@ -82,6 +86,8 @@ A **custom regex-based tokenizer** was implemented to handle symbolic expression
 ### Transformer Performance
 
 * Validation Accuracy: **95.22%**
+* Training Accuracy: 94.11%
+* Validation Loss: 1.2365
 
 ![Transformer Training Curve](results/transformer_training_curves.png)
 
@@ -117,32 +123,3 @@ results/
  ├── lstm_training_curves.png
  └── transformer_training_curves.png
 ```
-
----
-
-## How to Run
-
-```bash
-pip install -r requirements.txt
-python src/models/Transformer_model.py
-```
-
----
-
-## Relevance to FASEROH
-
-This work demonstrates that **symbolic mathematical transformations can be learned using neural sequence models**.
-
-It provides a strong foundation for extending the approach to:
-
-👉 Histogram → Symbolic Function translation
-👉 Neural symbolic regression
-👉 Full FASEROH pipeline integration
-
----
-
-## Author
-
-**V Kannabiran**
-B.Tech CSE, IIIT Kottayam
-GSoC 2026 Applicant
