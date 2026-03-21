@@ -5,6 +5,13 @@ import re
 x = smp.symbols('x')
 
 def random_poly(max_degree=6, coeff_range=(-9, 9)):
+    
+    """
+    Generate random polynomial up to max_degree.
+    Started with degree 4, but model needed more variety, so bumped to 6.
+    Coefficient range -9 to 9 gives good spread without huge numbers.
+    """
+    
     deg = random.randint(1, max_degree)
     while True:
         expr = 0
@@ -13,10 +20,20 @@ def random_poly(max_degree=6, coeff_range=(-9, 9)):
             if c != 0:
                 expr += c * x**d
         expr = smp.expand(expr)
+        
         if expr!=0 and expr.has(x):
+            # Skip zero expressions or ones that simplify away x
             return smp.simplify(expr)
 
 def random_analytic_function():
+
+    """
+    Generate random analytic function by combining: Polynomials, sin, cos, exp of polynomials,Adding another polynomial with 60% probability
+    
+    Tried adding division by quadratics (commented below) but caused 
+    too many singularities in [-1,1], so disabled for now.
+    """
+    
     p1 = random_poly()
     p2 = random_poly()
     choices = [p1 , smp.sin(p1), smp.cos(p1), smp.exp(p1)]
@@ -31,12 +48,27 @@ def random_analytic_function():
     return smp.expand(expr)
 
 def taylor_series_up_to_fourth_order(expr):
+
+    """
+    SymPy's built-in series expansion up to O(x^5).
+    Faster than manual differentiation, but kept manual version for verification.
+    """
+    
     return smp.series(expr, x, 0, 5).removeO()
 
 def differentiation(f,x):
     return smp.diff(f,x)
 
 def traditional_taylor_series_up_to_fourth_order(f):
+
+    """
+    Manual Taylor expansion using derivatives at 0.
+    f(0) + f'(0)x + f''(0)x^2/2! + ...
+    
+    Kept this for verification — caught a few bugs in SymPy's series handling
+    during early experiments. SymPy is fine now but verification stays.
+    """
+    
     res=f.subs(x,0)
     temp=f
     for i in range(1,5):
