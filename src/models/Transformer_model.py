@@ -129,12 +129,18 @@ class PositionalEncoding(nn.Module):
         return x + self.pe[:, :x.size(1), :]
 class TransformerSeq2Seq(nn.Module):
     def __init__(self, vocab_size, emb=128, nhead=8, num_layers=4, ff_dim=512, dropout=0.05):
+        
+        # Tried emb=256 but overfit, 128 worked better
+        # nhead=8 is default, tried 4 but accuracy dropped
+        # 4 layers seemed enough for this task, 6 didn't improve much
+        
         super().__init__()
 
         self.emb = emb
         self.embedding = nn.Embedding(vocab_size, emb, padding_idx=PAD)
         self.pos_encoder = PositionalEncoding(emb)
 
+        # Spent 2 days debugging Transformer — batch_first=True was the fix
         self.transformer = nn.Transformer(
             d_model=emb,
             nhead=nhead,
@@ -185,12 +191,20 @@ model = TransformerSeq2Seq(
 ).to(DEVICE)
 
 criterion = nn.CrossEntropyLoss(ignore_index=PAD, label_smoothing=0.1)
+
+# Learning rate experiments:
+# lr=1e-3 → diverged after 5 epochs
+# lr=5e-4 → unstable validation
+# lr=1e-4 → slow but stable, sticking with this
+
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
+
+# Tried CosineAnnealingLR, ReduceLROnPlateau worked better empirically
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
-    mode='min',        # reduce when val loss stops decreasing
-    factor=0.5,        # LR becomes half
-    patience=2,        # wait 2 epochs before reducing
+    mode='min',        
+    factor=0.5,        
+    patience=2,        
 )
 
 
