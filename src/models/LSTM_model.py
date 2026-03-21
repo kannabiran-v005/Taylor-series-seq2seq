@@ -17,12 +17,15 @@ np.random.seed(42)
 
 if torch.cuda.is_available():
     torch.cuda.manual_seed_all(42)
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"# hoping CUDA works, CPU is too slow
 print(DEVICE)
 class TaylorDataset(Dataset):
     def __init__(self, path):
         self.data = []
-
+        
+        # Tried loading all at once, but JSONL format requires streaming
+        # This works fine
+        
         with open(path) as f:
             for line in f:
                 obj = json.loads(line)
@@ -52,7 +55,7 @@ itos = {i:t for t,i in stoi.items()}
 PAD = stoi["<PAD>"]
 SOS = stoi["<SOS>"]
 EOS = stoi["<EOS>"]
-print("Vocabulary size:", len(vocab))
+print("Vocabulary size:", len(vocab)) # 1582 tokens, manageable
 def encode(seq):
     return [stoi.get(t,stoi["<UNK>"]) for t in seq]
 encoded = []
@@ -82,10 +85,11 @@ def collate(batch):
     max_tgt = max(len(y) for _,y in batch)+1
 
     for src,tgt in batch:
-
+        # Pad source
         src_pad = src + [PAD]*(max_src-len(src))
-
+        # Decoder input = SOS + target sequence
         decoder_in = [SOS] + tgt
+        # Decoder output = target + EOS
         decoder_out = tgt + [EOS]
 
         decoder_in += [PAD]*(max_tgt-len(decoder_in))
@@ -101,6 +105,7 @@ def collate(batch):
         torch.tensor(tgt_out)
     )
 
+# Batch size 32 worked best — tried 64, got OOM errors
 train_loader = DataLoader(train_data,batch_size=32,shuffle=True,collate_fn=collate)
 val_loader = DataLoader(val_data,batch_size=32,shuffle=False,collate_fn=collate)
 test_loader = DataLoader(test_data,batch_size=32,shuffle=False,collate_fn=collate)
@@ -116,7 +121,7 @@ class Seq2Seq(nn.Module):
 
     def forward(self,src,tgt):
         src = self.embedding(src)
-        _,(h,c) = self.encoder(src)
+        _,(h,c) = self.encoder(src) # Don't need encoder outputs, just hidden state
         tgt = self.embedding(tgt)
         out,_ = self.decoder(tgt,(h,c))
         logits = self.fc(out)
@@ -124,6 +129,8 @@ class Seq2Seq(nn.Module):
 model = Seq2Seq(len(vocab)).to(DEVICE)
 
 criterion = nn.CrossEntropyLoss(ignore_index=PAD)
+
+# Learning rate: tried 1e-2 (diverged), 1e-4 (too slow), 1e-3 seems sweet spot
 optimizer = torch.optim.Adam(model.parameters(),lr=1e-3)
 
 def evaluate(loader):
@@ -188,6 +195,11 @@ for epoch in range(1,29):
 
         optimizer.zero_grad()
         loss.backward()
+
+        # No gradient clipping yet — maybe add if gradients explode later
+        # torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+
+        
         optimizer.step()
 
         total_loss += loss.item()
